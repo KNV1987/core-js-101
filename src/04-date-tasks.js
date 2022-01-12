@@ -19,8 +19,8 @@
  *    'Tue, 26 Jan 2016 13:48:02 GMT' => Date()
  *    'Sun, 17 May 1998 03:00:00 GMT+01' => Date()
  */
-function parseDataFromRfc2822(/* value */) {
-  throw new Error('Not implemented');
+function parseDataFromRfc2822(value) {
+  return Date.parse(value);
 }
 
 /**
@@ -34,8 +34,8 @@ function parseDataFromRfc2822(/* value */) {
  *    '2016-01-19T16:07:37+00:00'    => Date()
  *    '2016-01-19T08:07:37Z' => Date()
  */
-function parseDataFromIso8601(/* value */) {
-  throw new Error('Not implemented');
+function parseDataFromIso8601(value) {
+  return Date.parse(value);
 }
 
 
@@ -53,8 +53,9 @@ function parseDataFromIso8601(/* value */) {
  *    Date(2012,1,1)    => true
  *    Date(2015,1,1)    => false
  */
-function isLeapYear(/* date */) {
-  throw new Error('Not implemented');
+function isLeapYear(date) {
+  const dateRes = new Date(date.getFullYear(), 1, 29);
+  return !(dateRes.getMonth() - 1);
 }
 
 
@@ -73,8 +74,24 @@ function isLeapYear(/* date */) {
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,10,0,0,250)     => "00:00:00.250"
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,15,20,10,453)   => "05:20:10.453"
  */
-function timeSpanToString(/* startDate, endDate */) {
-  throw new Error('Not implemented');
+function timeSpanToString(startDate, endDate) {
+  const time = Math.abs(startDate.getTime() - endDate.getTime());
+  const second = 1000;
+  const min = 60 * second;
+  const hourAbs = Math.trunc(time / (60 * min));
+  const minAbs = Math.trunc((time - hourAbs * 60 * min) / (min));
+  const secAbs = Math.trunc((time - hourAbs * 60 * min - minAbs * min) / (second));
+  const milSecAbs = time - hourAbs * 60 * min - minAbs * min - secAbs * second;
+  const resHourAbs = hourAbs >= 9 ? hourAbs : `0${hourAbs}`;
+  const resMinAbs = minAbs >= 9 ? minAbs : `0${minAbs}`;
+  const resSecAbs = secAbs >= 9 ? secAbs : `0${secAbs}`;
+  let resMilSecAbs;
+  if (milSecAbs < 10) {
+    resMilSecAbs = `00${milSecAbs}`;
+  } else if (milSecAbs > 9 && milSecAbs < 100) {
+    resMilSecAbs = `0${milSecAbs}`;
+  } else resMilSecAbs = milSecAbs;
+  return `${resHourAbs}:${resMinAbs}:${resSecAbs}.${resMilSecAbs}`;
 }
 
 
@@ -94,8 +111,13 @@ function timeSpanToString(/* startDate, endDate */) {
  *    Date.UTC(2016,3,5,18, 0) => Math.PI
  *    Date.UTC(2016,3,5,21, 0) => Math.PI/2
  */
-function angleBetweenClockHands(/* date */) {
-  throw new Error('Not implemented');
+function angleBetweenClockHands(date) {
+  const hourDate = date.getUTCHours();
+  const hours = hourDate > 12 ? Math.abs(hourDate - 12) : Math.abs(hourDate);
+  const min = date.getMinutes();
+  const result = Math.abs(0.5 * (60 * hours - 11 * min));
+  const resRad = result > 180 ? (Math.abs(360 - result)) / 180 : result / 180;
+  return resRad * Math.PI;
 }
 
 
